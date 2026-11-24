@@ -40,6 +40,9 @@ jobs:
       - name: Install application dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      - name: Execute disabled-account API-key runtime probe
+        run: php tests/security/api-disabled-user-runtime.php
+
       - name: Verify security-relevant source paths exist
         shell: bash
         run: |
