@@ -43,6 +43,9 @@ jobs:
       - name: Execute disabled-account API-key runtime probe
         run: php tests/security/api-disabled-user-runtime.php
 
+      - name: Execute deactivated-account 2FA and OIDC runtime probes
+        run: php tests/security/deactivated-account-auth-flows-runtime.php
+
       - name: Verify security-relevant source paths exist
         shell: bash
         run: |
