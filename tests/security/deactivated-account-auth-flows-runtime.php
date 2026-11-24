@@ -64,19 +64,19 @@ namespace {
         public function getIdToken() { return null; }
         public function getAccessToken() { return 'fixture-access-token'; }
     }
-    final class ProbeApp {
-        public ProbeRequest $request;
+    final class ProbeApp extends \\Lime\\App {
         public ProbeSession $session;
         public ProbeAuth $auth;
         public ProbeStore $dataStorage;
         public array $events = [];
         public function __construct(array $params = []) {
-            $this->request = new ProbeRequest($params);
+            parent::__construct();
+            $this->request = new \\Lime\\Request(['request' => $params]);
             $this->session = new ProbeSession();
             $this->auth = new ProbeAuth();
             $this->dataStorage = new ProbeStore();
         }
-        public function helper($name) {
+        public function helper(string $name): mixed {
             return match($name) {
                 'jwt' => new ProbeJwt(), 'twfa' => new ProbeTwoFa(),
                 'auth' => $this->auth, 'session' => $this->session,
@@ -84,8 +84,8 @@ namespace {
                 default => throw new RuntimeException('Unexpected helper '.$name)
             };
         }
-        public function trigger($name, $args = []): void { $this->events[] = $name; }
-        public function reroute($url): void {}
+        public function trigger(string $name, array $args = []): void { $this->events[] = $name; }
+        public function reroute(string $url, mixed $status = null): void {}
         public function hash($value) { return 'fixture-hash'; }
     }
     function attachApp(object $controller, ProbeApp $app): void {
