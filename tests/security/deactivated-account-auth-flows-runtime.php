@@ -84,7 +84,7 @@ namespace {
                 default => throw new RuntimeException('Unexpected helper '.$name)
             };
         }
-        public function trigger(string $event, array $params = []): \\Lime\\App { $this->events[] = $event; return $this; }
+        public function trigger(string $event, array $params = []): \Lime\App { $this->events[] = $event; return $this; }
         public function reroute(string $url, mixed $status = null): void {}
         public function hash($value) { return 'fixture-hash'; }
     }
