@@ -15,7 +15,7 @@ namespace {
         public function __construct(private array $params = []) {}
         public function param($key, $default = null) { return $this->params[$key] ?? $default; }
     }
-    final class ProbeSession {
+    final class ProbeSession extends \Lime\Helper {
         public array $writes = [];
         public function read($key, $default = null) {
             return $key === 'identi_oidc_provider' ? ($GLOBALS['probe_oidc'] ?? $default) : $default;
@@ -23,20 +23,20 @@ namespace {
         public function write($key, $value): void { $this->writes[$key] = $value; }
         public function delete($key): void {}
     }
-    final class ProbeAuth {
+    final class ProbeAuth extends \Lime\Helper {
         public array $user = [];
         public function setUser($user, ...$args): void { $this->user = (array)$user; }
     }
-    final class ProbeJwt {
+    final class ProbeJwt extends \Lime\Helper {
         public function decode($token) { return ['_id' => 'inactive-user-id']; }
     }
-    final class ProbeTwoFa {
+    final class ProbeTwoFa extends \Lime\Helper {
         public function verifyCode($secret, $code): bool { return $secret === 'fixture-secret' && $code === '123456'; }
     }
-    final class ProbeCsrf {
+    final class ProbeCsrf extends \Lime\Helper {
         public function token($scope) { return 'fixture-csrf'; }
     }
-    final class ProbeAcl {
+    final class ProbeAcl extends \Lime\Helper {
         public function roles() { return [['appid' => 'admin']]; }
     }
     final class ProbeStore {
@@ -72,21 +72,19 @@ namespace {
         public function __construct(array $params = []) {
             parent::__construct();
             $this->request = new \Lime\Request(['request' => $params]);
-            $this->session = new ProbeSession();
-            $this->auth = new ProbeAuth();
+            $this->session = new ProbeSession($this);
+            $this->auth = new ProbeAuth($this);
             $this->dataStorage = new ProbeStore();
-        }
-        public function helper(string $name): mixed {
-            return match($name) {
-                'jwt' => new ProbeJwt(), 'twfa' => new ProbeTwoFa(),
-                'auth' => $this->auth, 'session' => $this->session,
-                'csrf' => new ProbeCsrf(), 'acl' => new ProbeAcl(),
-                default => throw new RuntimeException('Unexpected helper '.$name)
-            };
+            $this->helpers['session'] = $this->session;
+            $this->helpers['auth'] = $this->auth;
+            $this->helpers['jwt'] = new ProbeJwt($this);
+            $this->helpers['twfa'] = new ProbeTwoFa($this);
+            $this->helpers['csrf'] = new ProbeCsrf($this);
+            $this->helpers['acl'] = new ProbeAcl($this);
         }
         public function trigger(string $event, array $params = []): \Lime\App { $this->events[] = $event; return $this; }
-        public function reroute(string $url, mixed $status = null): void {}
-        public function hash($value) { return 'fixture-hash'; }
+        public function reroute(string $path): void {}
+        public function hash(string $text, mixed $algo = PASSWORD_BCRYPT): string { return 'fixture-hash'; }
     }
     function attachApp(object $controller, ProbeApp $app): void {
         $r = new ReflectionObject($controller);
