@@ -1,0 +1,62 @@
+name: Cockpit Security Regression Lab
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - security/cockpit-regression-tests
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cockpit-security-regression-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime-preflight:
+    name: PHP runtime and application preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout fork under test
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, gd, pdo, pdo_sqlite, zip, fileinfo, mbstring
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate PHP source syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          find . -path './lib/vendor' -prune -o -name '*.php' -type f -print0 |
+            xargs -0 -n1 php -l
+
+      - name: Install application dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Verify security-relevant source paths exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f modules/App/api.php
+          test -f modules/App/Controller/Auth.php
+          test -f modules/Identi/Controller/Identi.php
+          test -f modules/System/Controller/Buckets.php
+          test -f modules/App/Helper/Auth.php
+          echo "Source preflight passed. This job does not claim exploit confirmation."
+
+      - name: Upload preflight report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cockpit-security-preflight
+          path: |
+            composer.lock
+          if-no-files-found: ignore
+          retention-days: 7
