@@ -34,7 +34,7 @@ final class ApiHarness {
     }
     public function service($name, $factory): void {}
     public function bind($route, $handler): void { $this->handler = $handler; }
-    public function param($name, $default = null) { return $name === 'api_key' ? null : $default; }
+    public function param($name, $default = null) { return $default; }
     public function helper($name) { return $name === 'auth' ? $this->auth : new FakeRspc(); }
     public function __get($name) { return null; }
     public function loadRoute(): void { include dirname(__DIR__, 2).'/modules/App/api.php'; }
