@@ -18,6 +18,7 @@ namespace Lime {
 }
 namespace {
     require dirname(__DIR__, 2).'/lib/vendor/autoload.php';
+    require dirname(__DIR__, 2).'/modules/App/Controller/Base.php';
     require dirname(__DIR__, 2).'/modules/App/Controller/Auth.php';
     require dirname(__DIR__, 2).'/modules/Identi/Controller/Identi.php';
 
