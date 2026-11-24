@@ -5,17 +5,6 @@ declare(strict_types=1);
  * Executes the real Auth::validate2FA() and Identi::callback() methods with
  * isolated in-memory fixtures. No external IdP, database, or production account.
  */
-namespace Lime {
-    if (!function_exists(__NAMESPACE__.'\\fetch_from_array')) {
-        function fetch_from_array($array, $path, $default = null) {
-            foreach (explode('.', (string)$path) as $part) {
-                if (!is_array($array) || !array_key_exists($part, $array)) return $default;
-                $array = $array[$part];
-            }
-            return $array;
-        }
-    }
-}
 namespace {
     require dirname(__DIR__, 2).'/lib/vendor/autoload.php';
     require dirname(__DIR__, 2).'/modules/App/Controller/Base.php';
