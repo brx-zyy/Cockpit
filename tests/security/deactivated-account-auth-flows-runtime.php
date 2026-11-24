@@ -64,14 +64,14 @@ namespace {
         public function getIdToken() { return null; }
         public function getAccessToken() { return 'fixture-access-token'; }
     }
-    final class ProbeApp extends \\Lime\\App {
+    final class ProbeApp extends \Lime\App {
         public ProbeSession $session;
         public ProbeAuth $auth;
         public ProbeStore $dataStorage;
         public array $events = [];
         public function __construct(array $params = []) {
             parent::__construct();
-            $this->request = new \\Lime\\Request(['request' => $params]);
+            $this->request = new \Lime\Request(['request' => $params]);
             $this->session = new ProbeSession();
             $this->auth = new ProbeAuth();
             $this->dataStorage = new ProbeStore();
